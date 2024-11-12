@@ -1,0 +1,91 @@
+package net.skycast.interfaces.weatherbit
+
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
+
+class WeatherbitApi(val key: String) {
+
+    private val httpClient = HttpClient(OkHttp) {
+        install(ContentNegotiation) {
+            json(Json {
+                ignoreUnknownKeys = true
+                isLenient = true
+                prettyPrint = true
+            })
+        }
+    }
+    suspend fun getCurrentObservations(
+        key: String = this.key,
+        lat: Double? = null,
+        lon: Double? = null,
+        cityId: String? = null,
+        city: String? = null,
+        postalCode: String? = null,
+        country: String? = null,
+        station: String? = null,
+        stations: String? = null,
+        points: String? = null,
+        cities: String? = null,
+        units: Units? = null,
+        lang: Lang? = null
+    ): CurrentObservations {
+        val response = httpClient.get("https://api.weatherbit.io/v2.0/current") {
+            parameter("key", key)
+            lat?.let { parameter("lat", it) }
+            lon?.let { parameter("lon", it) }
+            cityId?.let { parameter("city_id", it) }
+            city?.let { parameter("city", it) }
+            postalCode?.let { parameter("postal_code", it) }
+            country?.let { parameter("country", it) }
+            station?.let { parameter("station", it) }
+            stations?.let { parameter("stations", it) }
+            points?.let { parameter("points", it) }
+            cities?.let { parameter("cities", it) }
+            units?.let { parameter("units", it) }
+            lang?.let { parameter("lang", it) }
+        }
+        if (response.status.value != 200) {
+            throw Exception("Failed to get current observations: ${response.status}")
+        }
+        return response.body<CurrentObservations>()
+    }
+
+    suspend fun getDailyForecast(
+        key: String = this.key,
+        lat: Double? = null,
+        lon: Double? = null,
+        cityId: String? = null,
+        city: String? = null,
+        postalCode: String? = null,
+        country: String? = null,
+        station: String? = null,
+        days: Double? = null,
+        units: Units? = null,
+        lang: Lang? = null
+    ): ForecastDaily {
+        val response = httpClient.get("https://api.weatherbit.io/v2.0/forecast/daily") {
+            parameter("key", key)
+            lat?.let { parameter("lat", it) }
+            lon?.let { parameter("lon", it) }
+            cityId?.let { parameter("city_id", it) }
+            city?.let { parameter("city", it) }
+            postalCode?.let { parameter("postal_code", it) }
+            country?.let { parameter("country", it) }
+            station?.let { parameter("station", it) }
+            days?.let { parameter("days", it) }
+            units?.let { parameter("units", it) }
+            lang?.let { parameter("lang", it) }
+        }
+        if (response.status.value != 200) {
+            throw Exception("Failed to get daily forecast: ${response.status}")
+        }
+        return response.body<ForecastDaily>()
+    }
+
+}
