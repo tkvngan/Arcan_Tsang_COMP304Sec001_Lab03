@@ -21,8 +21,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.skycast.application.GetWeather
-import net.skycast.domain.Location
-import net.skycast.infrastructure.UseCases
+import net.skycast.infrastructure.UseCaseImplementations
 import net.skycast.infrastructure.room.AppRepository
 import net.skycast.infrastructure.weatherbit.WeatherbitApi
 import net.skycast.ui.theme.SkyCastTheme
@@ -31,7 +30,7 @@ class MainActivity : ComponentActivity() {
 
     val repository by lazy { AppRepository(context = this) }
     val weatherApi by lazy { WeatherbitApi(key = "d62ef40519fc42989301bd120efc75e0") }
-    val useCases by lazy { UseCases(repository, weatherApi) }
+    val useCases by lazy { UseCaseImplementations(repository, weatherApi) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +42,7 @@ class MainActivity : ComponentActivity() {
                     Simple(
                         modifier = Modifier.padding(innerPadding),
                         useCases = useCases,
+                        repository = repository,
                         scope = scope
                     )
                 }
@@ -54,7 +54,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Simple(
     modifier: Modifier = Modifier,
-    useCases: UseCases,
+    repository: AppRepository,
+    useCases: UseCaseImplementations,
     scope: CoroutineScope
 ) {
     var text = remember { mutableStateOf("") }

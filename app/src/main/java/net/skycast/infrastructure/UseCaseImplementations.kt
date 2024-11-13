@@ -8,14 +8,15 @@ import net.skycast.application.GetWeather
 import net.skycast.application.GetWeatherForecast
 import net.skycast.application.RemoveFavoriteLocation
 import net.skycast.application.RemoveWeatherRecord
-import net.skycast.application.StoreFavoriteLocation
-import net.skycast.application.StoreWeatherRecord
+import net.skycast.application.SaveFavoriteLocation
+import net.skycast.application.SaveWeatherRecord
 import net.skycast.domain.Location
+import net.skycast.domain.PartOfDay
 import net.skycast.domain.WeatherInfo
 import net.skycast.infrastructure.room.AppRepository
 import net.skycast.infrastructure.weatherbit.WeatherbitApi
 
-class UseCases(
+class UseCaseImplementations(
     val repository: AppRepository,
     val api: WeatherbitApi) {
 
@@ -53,17 +54,22 @@ class UseCases(
                 visibility = observation.vis?.toDouble(),
                 cloudCover = observation.clouds?.toDouble(),
                 precipitation = observation.precip,
+                pressure = observation.pres,
                 uvIndex = observation.uv,
                 airQualityIndex = observation.aqi,
                 sunrise = observation.sunrise,
                 sunset = observation.sunset,
                 snow = observation.snow,
                 dewPoint = observation.dewpt,
+                partOfDay = when (observation.pod) {
+                    "d" -> PartOfDay.DAY
+                    "n" -> PartOfDay.NIGHT
+                    else -> null
+                },
             )
             return Pair(location, weatherInfo)
         }
     }
-
 
     val GetWeatherForecast: GetWeatherForecast = object : GetWeatherForecast {
         override suspend fun invoke(parameters: GetWeatherForecast.Parameters): Pair<Location, List<WeatherInfo>>? {
@@ -101,11 +107,17 @@ class UseCases(
                     visibility = forecast.vis?.toDouble(),
                     cloudCover = forecast.clouds?.toDouble(),
                     precipitation = forecast.precip,
+                    pressure = forecast.pres,
                     uvIndex = forecast.uv,
                     sunrise = forecast.sunriseTs.toString(),
                     sunset = forecast.sunsetTs.toString(),
                     snow = forecast.snow,
                     dewPoint = forecast.dewpt,
+                    partOfDay = when (forecast.pod) {
+                        "d" -> PartOfDay.DAY
+                        "n" -> PartOfDay.NIGHT
+                        else -> null
+                    },
                     maxTemperature = forecast.maxTemp,
                     minTemperature = forecast.minTemp,
                     maxFeelsLike = forecast.appMaxTemp,
@@ -140,13 +152,13 @@ class UseCases(
         }
     }
 
-    val StoreFavoriteLocation: StoreFavoriteLocation = object : StoreFavoriteLocation {
+    val SaveFavoriteLocation: SaveFavoriteLocation = object : SaveFavoriteLocation {
         override suspend fun invoke(location: Location): Long {
             return repository.storeFavoriteLocation(location)
         }
     }
 
-    val StoreWeatherRecord: StoreWeatherRecord = object : StoreWeatherRecord {
+    val StoreWeatherRecord: SaveWeatherRecord = object : SaveWeatherRecord {
         override suspend fun invoke(input: Pair<Location, WeatherInfo>): Long {
             val (location, weatherInfo) = input
             return repository.storeWeatherRecord(location, weatherInfo)

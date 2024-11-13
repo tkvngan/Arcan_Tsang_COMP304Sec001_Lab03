@@ -8,7 +8,7 @@ import net.skycast.domain.WeatherInfo
 
 class AppRepository(val context: Context) : Repository {
 
-    private val database: AppDatabase by lazy {
+    val database: AppDatabase by lazy {
         Room.databaseBuilder(
             context.applicationContext,
             AppDatabase::class.java, "skycast_database"

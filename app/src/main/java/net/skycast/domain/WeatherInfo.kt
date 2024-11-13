@@ -1,7 +1,5 @@
 package net.skycast.domain
 
-import kotlinx.serialization.SerialName
-
 
 data class WeatherInfo(
     val timestamp: Long,
@@ -15,14 +13,19 @@ data class WeatherInfo(
     val visibility: Double? = null,
     val cloudCover: Double? = null,
     val precipitation: Double? = null,
+    val pressure: Double? = null,
     val uvIndex: Double? = null,
     val airQualityIndex: Double? = null,
     val sunrise: String? = null,
     val sunset: String? = null,
     val snow: Double? = null,
     val dewPoint: Double? = null,
+    val partOfDay: PartOfDay? = null,
     val maxTemperature: Double? = null,
     val minTemperature: Double? = null,
     val maxFeelsLike: Double? = null,
     val minFeelsLike: Double? = null,
 )
+
+enum class PartOfDay { DAY, NIGHT }
+

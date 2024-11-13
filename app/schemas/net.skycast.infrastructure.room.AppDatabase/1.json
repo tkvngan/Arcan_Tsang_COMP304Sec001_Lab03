@@ -1,0 +1,264 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "252f2c8524f2c158ba221a98c5ee80d2",
+    "entities": [
+      {
+        "tableName": "WeatherRecord",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `cityName` TEXT, `stateCode` TEXT, `countryCode` TEXT, `timezone` TEXT, `timestamp` INTEGER NOT NULL, `temperature` REAL NOT NULL, `feelsLike` REAL, `humidity` REAL, `windSpeed` REAL, `windDirection` TEXT, `weatherCode` TEXT, `weatherDescription` TEXT, `visibility` REAL, `cloudCover` REAL, `precipitation` REAL, `pressure` REAL, `uvIndex` REAL, `airQualityIndex` REAL, `sunrise` TEXT, `sunset` TEXT, `snow` REAL, `dewPoint` REAL, `partOfDay` TEXT, `maxTemperature` REAL, `minTemperature` REAL, `maxFeelsLike` REAL, `minFeelsLike` REAL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "location.latitude",
+            "columnName": "latitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "location.longitude",
+            "columnName": "longitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "location.cityName",
+            "columnName": "cityName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "location.stateCode",
+            "columnName": "stateCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "location.countryCode",
+            "columnName": "countryCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "location.timezone",
+            "columnName": "timezone",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weatherInfo.timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "weatherInfo.temperature",
+            "columnName": "temperature",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "weatherInfo.feelsLike",
+            "columnName": "feelsLike",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weatherInfo.humidity",
+            "columnName": "humidity",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weatherInfo.windSpeed",
+            "columnName": "windSpeed",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weatherInfo.windDirection",
+            "columnName": "windDirection",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weatherInfo.weatherCode",
+            "columnName": "weatherCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weatherInfo.weatherDescription",
+            "columnName": "weatherDescription",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weatherInfo.visibility",
+            "columnName": "visibility",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weatherInfo.cloudCover",
+            "columnName": "cloudCover",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weatherInfo.precipitation",
+            "columnName": "precipitation",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weatherInfo.pressure",
+            "columnName": "pressure",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weatherInfo.uvIndex",
+            "columnName": "uvIndex",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weatherInfo.airQualityIndex",
+            "columnName": "airQualityIndex",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weatherInfo.sunrise",
+            "columnName": "sunrise",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weatherInfo.sunset",
+            "columnName": "sunset",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weatherInfo.snow",
+            "columnName": "snow",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weatherInfo.dewPoint",
+            "columnName": "dewPoint",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weatherInfo.partOfDay",
+            "columnName": "partOfDay",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weatherInfo.maxTemperature",
+            "columnName": "maxTemperature",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weatherInfo.minTemperature",
+            "columnName": "minTemperature",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weatherInfo.maxFeelsLike",
+            "columnName": "maxFeelsLike",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weatherInfo.minFeelsLike",
+            "columnName": "minFeelsLike",
+            "affinity": "REAL",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "FavoriteLocation",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `cityName` TEXT, `stateCode` TEXT, `countryCode` TEXT, `timezone` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "location.latitude",
+            "columnName": "latitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "location.longitude",
+            "columnName": "longitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "location.cityName",
+            "columnName": "cityName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "location.stateCode",
+            "columnName": "stateCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "location.countryCode",
+            "columnName": "countryCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "location.timezone",
+            "columnName": "timezone",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '252f2c8524f2c158ba221a98c5ee80d2')"
+    ]
+  }
+}
