@@ -13,7 +13,7 @@
     "UnusedImport"
 )
 
-package net.skycast.interfaces.weatherbit
+package net.skycast.infrastructure.weatherbit
 
 
 import kotlinx.serialization.SerialName
@@ -147,7 +147,7 @@ data class CurrentObservation (
 
     /* Unix Timestamp */
     @SerialName("ts")
-    val ts: Double? = null,
+    val ts: Long? = null,
 
     /* Time (UTC) of Sunrise (HH:MM) */
     @SerialName("sunrise")

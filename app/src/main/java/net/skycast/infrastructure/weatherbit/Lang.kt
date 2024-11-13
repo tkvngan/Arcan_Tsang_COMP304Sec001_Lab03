@@ -1,4 +1,4 @@
-package net.skycast.interfaces.weatherbit
+package net.skycast.infrastructure.weatherbit
 
 import kotlinx.serialization.SerialName
 

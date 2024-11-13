@@ -13,7 +13,7 @@
     "UnusedImport"
 )
 
-package net.skycast.interfaces.weatherbit
+package net.skycast.infrastructure.weatherbit
 
 
 import kotlinx.serialization.SerialName
@@ -58,7 +58,7 @@ data class Forecast (
 
     /* Unix Timestamp */
     @SerialName("ts")
-    val ts: Double? = null,
+    val ts: Long? = null,
 
     /* Timestamp in local time */
     @SerialName("timestamp_local")

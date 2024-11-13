@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    kotlin("kapt")
 }
 
 android {
@@ -64,8 +65,11 @@ dependencies {
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
-    implementation(libs.room.compiler)
-    
+
+    kapt(libs.room.compiler) {
+        exclude(group = "com.intellij", module = "annotations")
+    }
+
     testImplementation(libs.junit)
 
     androidTestImplementation(libs.androidx.junit)

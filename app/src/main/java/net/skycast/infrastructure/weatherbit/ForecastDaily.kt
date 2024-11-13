@@ -13,7 +13,7 @@
     "UnusedImport"
 )
 
-package net.skycast.interfaces.weatherbit
+package net.skycast.infrastructure.weatherbit
 
 
 import kotlinx.serialization.SerialName
@@ -58,6 +58,6 @@ data class ForecastDaily (
     val timezone: String? = null,
 
     @SerialName("data")
-    val `data`: List<Forecast>? = null
+    val data: List<Forecast>? = null
 
 )

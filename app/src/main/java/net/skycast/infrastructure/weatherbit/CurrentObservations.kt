@@ -13,7 +13,7 @@
     "UnusedImport"
 )
 
-package net.skycast.interfaces.weatherbit
+package net.skycast.infrastructure.weatherbit
 
 
 import kotlinx.serialization.SerialName
@@ -33,6 +33,6 @@ data class CurrentObservations (
     val count: Int? = null,
 
     @SerialName("data")
-    val `data`: List<CurrentObservation>? = null
+    val data: List<CurrentObservation>? = null
 
 )

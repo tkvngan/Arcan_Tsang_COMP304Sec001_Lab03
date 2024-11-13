@@ -1,4 +1,4 @@
-package net.skycast.interfaces.weatherbit
+package net.skycast.infrastructure.weatherbit
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -6,11 +6,15 @@ import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-class WeatherbitApi(val key: String) {
-
+class WeatherbitApi(
+    val key: String,
+    val units: Units? = null,
+    val lang: Lang? = null
+) {
     private val httpClient = HttpClient(OkHttp) {
         install(ContentNegotiation) {
             json(Json {
@@ -20,6 +24,7 @@ class WeatherbitApi(val key: String) {
             })
         }
     }
+
     suspend fun getCurrentObservations(
         key: String = this.key,
         lat: Double? = null,
@@ -32,8 +37,8 @@ class WeatherbitApi(val key: String) {
         stations: String? = null,
         points: String? = null,
         cities: String? = null,
-        units: Units? = null,
-        lang: Lang? = null
+        units: Units? = this.units,
+        lang: Lang? = this.lang
     ): CurrentObservations {
         val response = httpClient.get("https://api.weatherbit.io/v2.0/current") {
             parameter("key", key)
@@ -51,7 +56,7 @@ class WeatherbitApi(val key: String) {
             lang?.let { parameter("lang", it) }
         }
         if (response.status.value != 200) {
-            throw Exception("Failed to get current observations: ${response.status}")
+            throw WeatherbitException(response.status.value, response.status.description)
         }
         return response.body<CurrentObservations>()
     }
@@ -65,7 +70,7 @@ class WeatherbitApi(val key: String) {
         postalCode: String? = null,
         country: String? = null,
         station: String? = null,
-        days: Double? = null,
+        days: Int? = null,
         units: Units? = null,
         lang: Lang? = null
     ): ForecastDaily {
@@ -83,9 +88,11 @@ class WeatherbitApi(val key: String) {
             lang?.let { parameter("lang", it) }
         }
         if (response.status.value != 200) {
-            throw Exception("Failed to get daily forecast: ${response.status}")
+            throw WeatherbitException(response.status.value, response.status.description)
         }
         return response.body<ForecastDaily>()
     }
 
 }
+
+data class WeatherbitException(val code: Int, override val message: String) : Exception(message)

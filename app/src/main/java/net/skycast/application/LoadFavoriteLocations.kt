@@ -2,5 +2,4 @@ package net.skycast.application
 
 import net.skycast.domain.Location
 
-interface StoreFavoriteLocationUseCase : UseCase<Location, Long> {
-}
+interface LoadFavoriteLocations : UseCase<Unit, Map<Long, Location>>
