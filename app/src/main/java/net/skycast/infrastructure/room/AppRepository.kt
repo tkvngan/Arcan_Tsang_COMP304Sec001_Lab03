@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import net.skycast.data.Repository
 import net.skycast.domain.Location
-import net.skycast.domain.WeatherInfo
+import net.skycast.domain.WeatherData
 
 class AppRepository(val context: Context) : Repository {
 
@@ -23,22 +23,21 @@ class AppRepository(val context: Context) : Repository {
         database.weatherRecordDao()
     }
 
-    override suspend fun getWeatherRecord(id: Long): Pair<Location, WeatherInfo>? {
-        val weatherRecord = weatherRecordDao.getWeatherRecord(id)
-        return weatherRecord?.let {
-            Pair<Location, WeatherInfo>(it.location, it.weatherInfo)
+    override suspend fun getWeatherRecord(id: Long): WeatherData? {
+        return weatherRecordDao.getWeatherRecord(id)?.let { record ->
+            WeatherData(record.location, current = record.weatherInfo, forecasts = emptyList())
         }
     }
 
-    override suspend fun getAllWeatherRecords(): Map<Long, Pair<Location, WeatherInfo>> {
+    override suspend fun getAllWeatherRecords(): Map<Long, WeatherData> {
         return weatherRecordDao.getAllWeatherRecords().associate { record ->
-            Pair(record.id, Pair(record.location, record.weatherInfo))
+            record.id to WeatherData(record.location, current = record.weatherInfo, forecasts = emptyList())
         }
     }
 
-    override suspend fun storeWeatherRecord(location: Location, weatherInfo: WeatherInfo): Long {
+    override suspend fun addWeatherRecord(data: WeatherData): Long {
         return weatherRecordDao.insertWeatherRecord(
-            WeatherRecord(id = 0, location = location, weatherInfo = weatherInfo)
+            WeatherRecord(id = 0, location = data.location, weatherInfo = data.current)
         )
     }
 
@@ -60,7 +59,7 @@ class AppRepository(val context: Context) : Repository {
         }
     }
 
-    override suspend fun storeFavoriteLocation(location: Location): Long {
+    override suspend fun addFavoriteLocation(location: Location): Long {
         return favoriteLocationDao.insertFavoriteLocation(FavoriteLocation(0, location))
     }
 

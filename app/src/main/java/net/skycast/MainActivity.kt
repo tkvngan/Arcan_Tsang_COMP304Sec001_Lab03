@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import net.skycast.application.GetWeather
+import net.skycast.application.WeatherParameters
 import net.skycast.infrastructure.UseCaseImplementations
 import net.skycast.infrastructure.room.AppRepository
 import net.skycast.infrastructure.weatherbit.WeatherbitApi
@@ -64,11 +64,17 @@ fun Simple(
             modifier = Modifier.align(Alignment.CenterHorizontally).padding(16.dp),
             onClick = {
                 scope.launch {
-                    useCases.GetWeather(
-                        GetWeather.Parameters(city="Toronto", country="CA")
-                    )?.let { (location, weatherInfo) ->
-                        text.value = location.toString() + "\n" + weatherInfo.toString()
-                        useCases.StoreWeatherRecord(Pair(location, weatherInfo))
+//                    useCases.GetWeather(
+//                        GetWeather.Parameters(city="Toronto", country="CA")
+//                    )?.let { (location, weatherInfo) ->
+//                        text.value = location.toString() + "\n" + weatherInfo.toString()
+//                        useCases.StoreWeatherRecord(Pair(location, weatherInfo))
+//                    }
+                    useCases.GetWeatherData(
+                        WeatherParameters(city="Toronto", country="CA", days = 7)
+                    ).let { data ->
+                        text.value = data.toString()
+                        useCases.SaveWeatherData(data)
                     }
                 }
             },
