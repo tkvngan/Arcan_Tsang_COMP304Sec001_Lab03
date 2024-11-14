@@ -67,6 +67,8 @@ dependencies {
     implementation(libs.ktor.client.serialization)
     implementation(libs.ktor.serialization.kotlinx.json)
 
+//    implementation(libs.accompanist.svg)
+
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
 

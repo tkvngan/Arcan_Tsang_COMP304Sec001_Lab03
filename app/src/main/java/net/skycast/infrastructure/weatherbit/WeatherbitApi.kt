@@ -55,6 +55,7 @@ class WeatherbitApi(
             lang?.let { parameter("lang", it) }
         }
         if (response.status.value != 200) {
+            println(response.status)
             throw WeatherbitException(response.status.value, response.status.description)
         }
         return response.body<CurrentObservations>()
@@ -87,6 +88,7 @@ class WeatherbitApi(
             lang?.let { parameter("lang", it) }
         }
         if (response.status.value != 200) {
+            println(response.status)
             throw WeatherbitException(response.status.value, response.status.description)
         }
         return response.body<ForecastDaily>()
