@@ -41,6 +41,18 @@ import net.skycast.ui.model.HomeViewModel
 import java.util.Date
 import java.text.SimpleDateFormat
 import kotlin.math.roundToInt
+//HomePage Views Display Torronto Weather Data
+//Explanation : The HomeView composable function displays the weather data for a specific location.
+// The location's name, current temperature, weather description, and forecast for the next seven days are displayed.
+// The user can click on the search icon in the top app bar to navigate to the search screen.
+// The weather data is displayed in a column layout with the location name, current temperature, weather description, and forecast displayed in separate Text composable functions.
+// The forecast is displayed in a LazyColumn with each day's weather data displayed in a Row composable function.
+// The weather data includes the day of the week, weather icon, weather description, minimum temperature, and maximum temperature.
+// The user can click on the Save button to save the weather data to their favorites.
+// The Save button is displayed at the bottom of the screen.
+// The HomeView composable function takes a HomeViewModel and NavController as parameters.
+// The HomeViewModel is used to get the weather data for the location, and the NavController is used to navigate to the search screen.
+// The state of the HomeViewModel is collected using the collectAsState function, and the weather data is displayed based on the state.
 
 val formatDayOfWeek = SimpleDateFormat("EEE")
 

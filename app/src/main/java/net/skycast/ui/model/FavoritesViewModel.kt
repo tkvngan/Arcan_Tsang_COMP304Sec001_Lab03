@@ -11,6 +11,7 @@ import net.skycast.domain.Location
 import net.skycast.domain.WeatherData
 import net.skycast.infrastructure.UseCaseImplementations
 
+// Fix : Viewing Weather Details from Favorites
 class FavoritesViewModel(
     private val useCases: UseCaseImplementations,
     private val homeViewModel: HomeViewModel
@@ -47,7 +48,7 @@ class FavoritesViewModel(
             }
         }
     }
-
+//
     suspend fun selectLocation(location: Location) {
         _stateFlow.value = _stateFlow.value.copy(isBusy = true)
         try {

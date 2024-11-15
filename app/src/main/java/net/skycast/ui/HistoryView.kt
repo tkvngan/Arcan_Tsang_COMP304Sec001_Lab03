@@ -20,6 +20,10 @@ import kotlinx.coroutines.launch
 import net.skycast.domain.WeatherData
 import net.skycast.ui.model.HistoryViewModel
 import kotlin.math.roundToInt
+// Fixed : Viewing Weather Details from History
+//Explanation : The HistoryView composable function displays a list of weather history records.
+// Each record is displayed in a HistoryCard composable function,
+// which shows the location's name, state, country, temperature, humidity, wind speed, weather icon, and weather description.
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
