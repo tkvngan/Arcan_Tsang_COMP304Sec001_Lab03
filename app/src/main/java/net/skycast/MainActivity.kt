@@ -27,14 +27,16 @@ import net.skycast.infrastructure.weatherbit.WeatherbitApi
 import net.skycast.ui.FavoritesView
 import net.skycast.ui.HistoryView
 import net.skycast.ui.HomeView
+import net.skycast.ui.SearchView
 import net.skycast.ui.model.FavoritesViewModel
 import net.skycast.ui.model.HistoryViewModel
 import net.skycast.ui.model.HomeViewModel
+import net.skycast.ui.model.SearchViewModel
 import net.skycast.ui.theme.SkyCastTheme
 
 class MainActivity : ComponentActivity() {
     private val repository by lazy { AppRepository(context = this) }
-    private val weatherApi by lazy { WeatherbitApi(key = "7d1e78e060974166a89072938cd2b335") }
+    private val weatherApi by lazy { WeatherbitApi(key = "5ffd1f30c7974380947e096b644f842b") }
     private val useCases by lazy { UseCaseImplementations(repository, weatherApi) }
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -48,12 +50,15 @@ class MainActivity : ComponentActivity() {
             val navBackStackEntry by navigator.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
 
-            // Initialize ViewModels
-            val homeViewModel: HomeViewModel = viewModel { HomeViewModel(useCases) }
-            val favoritesViewModel: FavoritesViewModel = viewModel { FavoritesViewModel(useCases) }
-            val historyViewModel: HistoryViewModel = viewModel { HistoryViewModel(useCases) }
+            // Initialize ViewModels with proper dependencies
+            val homeViewModel: HomeViewModel = viewModel { //
+                HomeViewModel(useCases)
+            }
+            val historyViewModel: HistoryViewModel = viewModel {
+                HistoryViewModel(useCases, homeViewModel)
+            }
 
-            // Initialize data
+            // Initialize initial data load
             LaunchedEffect(Unit) {
                 homeViewModel.initialize()
             }
@@ -64,25 +69,39 @@ class MainActivity : ComponentActivity() {
                         // Phone layout with bottom navigation
                         Scaffold(
                             bottomBar = {
-                                NavigationBar {
-                                    NavigationBarItem(
-                                        selected = currentRoute == "home",
-                                        onClick = { navigator.navigate("home") },
-                                        icon = { Icon(Icons.Default.Home, "Home") },
-                                        label = { Text("Home") }
-                                    )
-                                    NavigationBarItem(
-                                        selected = currentRoute == "favorites",
-                                        onClick = { navigator.navigate("favorites") },
-                                        icon = { Icon(Icons.Default.Favorite, "Favorites") },
-                                        label = { Text("Favorites") }
-                                    )
-                                    NavigationBarItem(
-                                        selected = currentRoute == "history",
-                                        onClick = { navigator.navigate("history") },
-                                        icon = { Icon(Icons.Default.History, "History") },
-                                        label = { Text("History") }
-                                    )
+                                if (currentRoute != "search") {
+                                    NavigationBar {
+                                        NavigationBarItem(
+                                            selected = currentRoute == "home",
+                                            onClick = {
+                                                navigator.navigate("home") {
+                                                    popUpTo("home") { inclusive = true }
+                                                }
+                                            },
+                                            icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+                                            label = { Text("Home") }
+                                        )
+                                        NavigationBarItem(
+                                            selected = currentRoute == "favorites",
+                                            onClick = {
+                                                navigator.navigate("favorites") {
+                                                    popUpTo("favorites") { inclusive = true }
+                                                }
+                                            },
+                                            icon = { Icon(Icons.Default.Favorite, contentDescription = "Favorites") },
+                                            label = { Text("Favorites") }
+                                        )
+                                        NavigationBarItem(
+                                            selected = currentRoute == "history",
+                                            onClick = {
+                                                navigator.navigate("history") {
+                                                    popUpTo("history") { inclusive = true }
+                                                }
+                                            },
+                                            icon = { Icon(Icons.Default.History, contentDescription = "History") },
+                                            label = { Text("History") }
+                                        )
+                                    }
                                 }
                             }
                         ) { innerPadding ->
@@ -91,48 +110,99 @@ class MainActivity : ComponentActivity() {
                                 startDestination = "home",
                                 modifier = Modifier.padding(innerPadding)
                             ) {
-                                composable("home") { HomeView(homeViewModel) }
-                                composable("favorites") { FavoritesView(favoritesViewModel) }
-                                composable("history") { HistoryView(historyViewModel) }
+                                composable("home") {
+                                    HomeView(homeViewModel, navigator)
+                                }
+                                composable("favorites") {
+                                    FavoritesView(
+                                        viewModel = viewModel {
+                                            FavoritesViewModel(useCases, homeViewModel)
+                                        },
+                                        navController = navigator
+                                    )
+                                }
+                                composable("history") {
+                                    HistoryView(historyViewModel, navigator)
+                                }
+                                composable("search") {
+                                    SearchView(
+                                        viewModel = viewModel {
+                                            SearchViewModel(useCases, homeViewModel)
+                                        },
+                                        navController = navigator
+                                    )
+                                }
                             }
                         }
                     }
                     else -> {
                         // Tablet/Foldable layout with navigation rail
                         Row(modifier = Modifier.fillMaxSize()) {
-                            NavigationRail(
-                                modifier = Modifier.padding(top = 56.dp),
-                                containerColor = MaterialTheme.colorScheme.inverseOnSurface
-                            ) {
-                                NavigationRailItem(
-                                    selected = currentRoute == "home",
-                                    onClick = { navigator.navigate("home") },
-                                    icon = { Icon(Icons.Default.Home, "Home") },
-                                    label = { Text("Home") }
-                                )
-                                NavigationRailItem(
-                                    selected = currentRoute == "favorites",
-                                    onClick = { navigator.navigate("favorites") },
-                                    icon = { Icon(Icons.Default.Favorite, "Favorites") },
-                                    label = { Text("Favorites") }
-                                )
-                                NavigationRailItem(
-                                    selected = currentRoute == "history",
-                                    onClick = { navigator.navigate("history") },
-                                    icon = { Icon(Icons.Default.History, "History") },
-                                    label = { Text("History") }
-                                )
+                            if (currentRoute != "search") {
+                                NavigationRail(
+                                    modifier = Modifier.padding(top = 56.dp),
+                                    containerColor = MaterialTheme.colorScheme.inverseOnSurface
+                                ) {
+                                    NavigationRailItem(
+                                        selected = currentRoute == "home",
+                                        onClick = {
+                                            navigator.navigate("home") {
+                                                popUpTo("home") { inclusive = true }
+                                            }
+                                        },
+                                        icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+                                        label = { Text("Home") }
+                                    )
+                                    NavigationRailItem(
+                                        selected = currentRoute == "favorites",
+                                        onClick = {
+                                            navigator.navigate("favorites") {
+                                                popUpTo("favorites") { inclusive = true }
+                                            }
+                                        },
+                                        icon = { Icon(Icons.Default.Favorite, contentDescription = "Favorites") },
+                                        label = { Text("Favorites") }
+                                    )
+                                    NavigationRailItem(
+                                        selected = currentRoute == "history",
+                                        onClick = {
+                                            navigator.navigate("history") {
+                                                popUpTo("history") { inclusive = true }
+                                            }
+                                        },
+                                        icon = { Icon(Icons.Default.History, contentDescription = "History") },
+                                        label = { Text("History") }
+                                    )
+                                }
                             }
 
-                            // Main content area
                             NavHost(
                                 navigator,
                                 startDestination = "home",
                                 modifier = Modifier.weight(1f)
                             ) {
-                                composable("home") { HomeView(homeViewModel) }
-                                composable("favorites") { FavoritesView(favoritesViewModel) }
-                                composable("history") { HistoryView(historyViewModel) }
+                                composable("home") {
+                                    HomeView(homeViewModel, navigator)
+                                }
+                                composable("favorites") {
+                                    FavoritesView(
+                                        viewModel = viewModel {
+                                            FavoritesViewModel(useCases, homeViewModel)
+                                        },
+                                        navController = navigator
+                                    )
+                                }
+                                composable("history") {
+                                    HistoryView(historyViewModel, navigator)
+                                }
+                                composable("search") {
+                                    SearchView(
+                                        viewModel = viewModel {
+                                            SearchViewModel(useCases, homeViewModel)
+                                        },
+                                        navController = navigator
+                                    )
+                                }
                             }
                         }
                     }

@@ -6,24 +6,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import net.skycast.application.WeatherParameters
 import net.skycast.domain.WeatherData
 import net.skycast.infrastructure.UseCaseImplementations
 
-//Class: HistoryViewModel
-//State Data Class: State
-//Holds the weather history, loading status, and error information.
-//State Flow: _stateFlow and stateFlow
-//Manages the state of the weather history.
-//Initialization: Fetches weather history data on initialization.
-//Function: loadHistory
-//Fetches weather history data and updates the state.
-//Function: deleteRecord
-//Deletes a specific weather history record and updates the state.
-//Function: clearError
-//Clears any error state.
-
 class HistoryViewModel(
-    private val useCases: UseCaseImplementations
+    private val useCases: UseCaseImplementations,
+    private val homeViewModel: HomeViewModel  // Add homeViewModel parameter
 ) : ViewModel() {
 
     data class State(
@@ -70,17 +59,20 @@ class HistoryViewModel(
         }
     }
 
-    suspend fun deleteRecord(id: Long) {
+    // Updated to fetch fresh weather data and update HomeViewModel
+    suspend fun selectWeather(weatherData: WeatherData) {
         updateState { copy(isBusy = true) }
         try {
-            useCases.RemoveWeatherData(id)
-            updateState {
-                copy(
-                    history = history.filterKeys { it != id },
-                    isBusy = false,
-                    error = null
+            // Fetch fresh weather data for the location
+            val freshWeatherData = useCases.GetWeatherData(
+                WeatherParameters(
+                    latitude = weatherData.location.latitude,
+                    longitude = weatherData.location.longitude
                 )
-            }
+            )
+            // Update HomeViewModel with fresh data (Dont need to reopen the app)
+            homeViewModel.updateWeatherData(freshWeatherData)
+            updateState { copy(isBusy = false, error = null) }
         } catch (e: Exception) {
             updateState {
                 copy(
@@ -88,10 +80,24 @@ class HistoryViewModel(
                     error = e
                 )
             }
+            throw e
         }
     }
 
-    suspend fun clearError() {
-        updateState { copy(error = null) }
+    suspend fun deleteRecord(id: Long) {
+        try {
+            useCases.RemoveWeatherData(id)
+            updateState {
+                copy(
+                    history = history.filterKeys { it != id }
+                )
+            }
+        } catch (e: Exception) {
+            updateState { copy(error = e) }
+        }
+    }
+
+    fun clearError() {
+        _stateFlow.value = _stateFlow.value.copy(error = null)
     }
 }

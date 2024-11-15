@@ -1,5 +1,6 @@
 package net.skycast.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,32 +12,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import net.skycast.domain.WeatherData
 import net.skycast.ui.model.HistoryViewModel
 import kotlin.math.roundToInt
 
-//Key Features:
-//Displays a list of weather history records.
-//Shows a loading indicator when data is being fetched.
-//Displays a message when no history is available.
-//Allows users to delete individual history records.
-//Handles errors by showing an alert dialog.
-
-//State Management: Uses collectAsState to observe the state from HistoryViewModel.
-//Loading Indicator: Displays a CircularProgressIndicator when data is being fetched.
-//Empty State: Shows a message when no weather history is available.
-//History List: Uses LazyColumn to display a list of weather history records.
-//Error Handling: Displays an AlertDialog for any errors encountered.
-//Helper Function: HistoryCard
-//Displays individual weather history records with delete functionality.
-//Helper Function: WeatherInfoColumn
-//Displays weather information in a column format.
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HistoryView(model: HistoryViewModel) {
+fun HistoryView(
+    model: HistoryViewModel,
+    navController: NavController
+) {
     val state by model.stateFlow.collectAsState()
     val scope = rememberCoroutineScope()
 
@@ -45,9 +35,7 @@ fun HistoryView(model: HistoryViewModel) {
             TopAppBar(
                 title = { Text("Weather History") },
                 navigationIcon = {
-                    IconButton(onClick = {
-                        // Navigation will be handled by NavController
-                    }) {
+                    IconButton(onClick = { navController.navigateUp() }) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
@@ -57,116 +45,139 @@ fun HistoryView(model: HistoryViewModel) {
                 )
             )
         }
-    ) { paddingValues ->
-        if (state.isBusy) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else if (state.history.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+    ) { padding ->
+        when {
+            state.isBusy -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "No weather history available",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Weather data will appear here when you save locations",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-                    )
+                    CircularProgressIndicator()
                 }
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                items(state.history.toList()) { (id, weatherData) ->
-                    HistoryCard(
-                        weatherData = weatherData,
-                        onDelete = {
-                            scope.launch {
-                                model.deleteRecord(id)
+            state.history.isEmpty() -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = "No weather history available",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Weather data will appear here when you save locations",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+            else -> {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    items(state.history.toList()) { (id, weatherData) ->
+                        HistoryCard(
+                            weatherData = weatherData,
+                            onDelete = {
+                                scope.launch {
+                                    model.deleteRecord(id)
+                                }
+                            },
+                            onClick = {
+                                scope.launch {
+                                    try {
+                                        model.selectWeather(weatherData)
+                                        navController.navigate("home") {
+                                            popUpTo("home") { inclusive = true }
+                                        }
+                                    } catch (e: Exception) {
+                                        // Error handled by error dialog
+                                    }
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
-    }
 
-    // Error handling
-    state.error?.let { error ->
-        AlertDialog(
-            onDismissRequest = {
-                scope.launch {
-                    model.clearError()
-                }
-            },
-            title = { Text("Error") },
-            text = { Text(error.localizedMessage ?: "An unknown error occurred") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        scope.launch {
-                            model.clearError()
-                        }
+        // Error handling
+        state.error?.let { error ->
+            AlertDialog(
+                onDismissRequest = { model.clearError() },
+                title = { Text("Error") },
+                text = { Text(error.message ?: "An unknown error occurred") },
+                confirmButton = {
+                    TextButton(onClick = { model.clearError() }) {
+                        Text("OK")
                     }
-                ) {
-                    Text("OK")
                 }
-            }
-        )
+            )
+        }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HistoryCard(
     weatherData: WeatherData,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 4.dp)
+            .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        ),
+        )
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = weatherData.location.cityName ?: "Unknown Location",
                         style = MaterialTheme.typography.titleLarge,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
-                    weatherData.location.stateCode?.let { stateCode ->
+                    if (!weatherData.location.stateCode.isNullOrEmpty() ||
+                        !weatherData.location.countryCode.isNullOrEmpty()) {
                         Text(
-                            text = stateCode,
+                            text = buildString {
+                                weatherData.location.stateCode?.let { append(it) }
+                                if (!weatherData.location.stateCode.isNullOrEmpty() &&
+                                    !weatherData.location.countryCode.isNullOrEmpty()) {
+                                    append(", ")
+                                }
+                                weatherData.location.countryCode?.let { append(it) }
+                            },
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -181,7 +192,7 @@ private fun HistoryCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -210,7 +221,7 @@ private fun HistoryCard(
                 weatherData.current.weatherCode?.let { code ->
                     Icon(
                         painter = painterResource(id = getWeatherIcon(code)),
-                        contentDescription = null,
+                        contentDescription = weatherData.current.weatherDescription,
                         modifier = Modifier.size(24.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
@@ -219,7 +230,9 @@ private fun HistoryCard(
                 Text(
                     text = weatherData.current.weatherDescription ?: "No description available",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -231,7 +244,10 @@ private fun WeatherInfoColumn(
     label: String,
     value: String
 ) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(horizontal = 4.dp)
+    ) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodySmall,

@@ -1,15 +1,15 @@
 package net.skycast.ui.model
 
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.CoroutineScope
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import net.skycast.application.WeatherParameters
 import net.skycast.domain.Location
 import net.skycast.domain.WeatherData
 import net.skycast.infrastructure.UseCaseImplementations
-
 
 class HomeViewModel(
     val useCases: UseCaseImplementations,
@@ -22,15 +22,14 @@ class HomeViewModel(
         val error: Throwable? = null,
     )
 
-    private val state = MutableStateFlow<State>(State())
-
-    val stateFlow: StateFlow<State> = state.asStateFlow()
+    private val _stateFlow = MutableStateFlow(State())
+    val stateFlow: StateFlow<State> = _stateFlow.asStateFlow()
 
     private suspend inline fun updateState(transform: suspend State.() -> State) {
-        state.value = try {
-            state.value.transform()
+        _stateFlow.value = try {
+            _stateFlow.value.transform()
         } catch (e: Throwable) {
-            state.value.copy(error = e, isBusy = false)
+            _stateFlow.value.copy(error = e, isBusy = false)
         }
     }
 
@@ -64,7 +63,7 @@ class HomeViewModel(
     }
 
     suspend fun refresh() {
-        val location = state.value.data?.location
+        val location = _stateFlow.value.data?.location
         if (location != null) {
             refresh(location)
         }
@@ -88,8 +87,10 @@ class HomeViewModel(
         }
     }
 
-    suspend fun clearError() {
-        updateState { copy(error = null) }
+    fun clearError() {
+        viewModelScope.launch {
+            updateState { copy(error = null) }
+        }
     }
 
     suspend fun save() {
@@ -103,6 +104,61 @@ class HomeViewModel(
             } else {
                 copy(isBusy = false)
             }
+        }
+    }
+
+    // Add this method to update weather data when selecting from favorites
+    suspend fun updateWeatherData(weatherData: WeatherData) {
+        updateState {
+            copy(isBusy = true)
+        }
+        updateState {
+            useCases.SaveWeatherData(weatherData)
+            copy(
+                data = weatherData,
+                favorites = favorites,  // Keep existing favorites
+                isBusy = false,
+                error = null
+            )
+        }
+    }
+
+    // Optional: Add method to refresh favorites list
+    suspend fun refreshFavorites() {
+        updateState {
+            copy(
+                favorites = useCases.LoadFavoriteLocations(Unit),
+                error = null
+            )
+        }
+    }
+
+    // Optional: Add method to add location to favorites
+    suspend fun addToFavorites(location: Location) {
+        updateState {
+            val id = useCases.SaveFavoriteLocation(location)
+            copy(
+                favorites = favorites + (id to location),
+                error = null
+            )
+        }
+    }
+
+    // Optional: Add method to remove from favorites
+    suspend fun removeFromFavorites(id: Long) {
+        updateState {
+            useCases.RemoveFavoriteLocation(id)
+            copy(
+                favorites = favorites - id,
+                error = null
+            )
+        }
+    }
+
+    // Optional: Add method to check if location is in favorites
+    fun isLocationInFavorites(location: Location): Boolean {
+        return _stateFlow.value.favorites.values.any {
+            it.latitude == location.latitude && it.longitude == location.longitude
         }
     }
 }
