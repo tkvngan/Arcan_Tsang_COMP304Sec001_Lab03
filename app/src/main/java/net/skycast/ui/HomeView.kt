@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
@@ -57,26 +58,17 @@ fun Double?.formatTemperature(): String {
 
 @Composable
 fun HomeView(
-    model: HomeViewModel
+    model: HomeViewModel,
+    navController: NavController
 ) {
     val state by model.stateFlow.collectAsState()
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        // TODO
-                    }) {
-                        Icon(Icons.Filled.Menu, contentDescription = "")
-                    }
-                },
+                title = { Text("Weather") },
                 actions = {
-                    IconButton(onClick = {
-                        // TODO
-                    }) {
-                        Icon(Icons.Default.Search, contentDescription = "")
+                    IconButton(onClick = { navController.navigate("search") }) {
+                        Icon(Icons.Default.Search, contentDescription = "Search")
                     }
                 },
                 colors = topAppBarColors(
@@ -92,8 +84,7 @@ fun HomeView(
                 .fillMaxHeight()
                 .background(MaterialTheme.colorScheme.primaryContainer)
                 .padding(innerPadding)
-                .padding(horizontal = 8.dp, vertical = 0.dp)
-            ,
+                .padding(horizontal = 8.dp, vertical = 0.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -137,8 +128,11 @@ fun HomeView(
                 forecasts?.withIndex()?.forEach { (index, forecast) ->
                     item {
                         Row(
-                            modifier = Modifier.fillParentMaxWidth().height(52.dp),
-                            verticalAlignment = Alignment.CenterVertically) {
+                            modifier = Modifier
+                                .fillParentMaxWidth()
+                                .height(52.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Text(
                                 modifier = Modifier.fillParentMaxWidth(0.15f),
                                 text = if (index == 0) "Today" else forecast.timestamp.dayOfWeek(),
@@ -149,7 +143,7 @@ fun HomeView(
                                 Icon(
                                     painter = painterResource(id = getWeatherIcon(forecast.weatherCode)),
                                     contentDescription = "",
-                                    modifier = Modifier.fillParentMaxWidth(0.15f)//.scale(0.75f)
+                                    modifier = Modifier.fillParentMaxWidth(0.15f)
                                 )
                             } else {
                                 Spacer(modifier = Modifier.fillParentMaxWidth(0.15f))
@@ -180,7 +174,9 @@ fun HomeView(
                 }
                 item {
                     Row(
-                        modifier = Modifier.fillParentMaxWidth().padding(top = 32.dp),
+                        modifier = Modifier
+                            .fillParentMaxWidth()
+                            .padding(top = 32.dp),
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Button(

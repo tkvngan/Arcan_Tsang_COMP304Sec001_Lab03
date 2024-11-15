@@ -46,7 +46,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -66,6 +65,13 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.client.serialization)
     implementation(libs.ktor.serialization.kotlinx.json)
+    implementation("androidx.compose.material3:material3-window-size-class:1.1.2")
+
+    // For navigation
+    implementation("androidx.navigation:navigation-compose:2.7.5")
+
+    // For extended icons
+    implementation("androidx.compose.material:material-icons-extended:1.5.4")
 
 //    implementation(libs.accompanist.svg)
 
