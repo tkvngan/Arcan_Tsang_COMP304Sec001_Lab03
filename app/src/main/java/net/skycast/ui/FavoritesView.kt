@@ -17,6 +17,11 @@ import kotlinx.coroutines.launch
 import net.skycast.domain.Location
 import net.skycast.ui.model.FavoritesViewModel
 
+// Fixed : Viewing Weather Details from Favorites
+//Explanation : The FavoritesView composable function displays a list of favorite locations.
+// Each location is displayed in a FavoriteLocationCard composable function, which shows the location's name, state, and country.
+// The user can click on a location to view its weather details or click on the delete icon to remove it from the favorites list.
+// If there are no favorite locations, an EmptyFavoritesContent composable function is displayed, prompting the user to search for locations to add to their favorites.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoritesView(
@@ -90,7 +95,7 @@ fun FavoritesView(
             }
         }
 
-        // Error handling
+        // Error handling (Basic)
         state.error?.let { error ->
             AlertDialog(
                 onDismissRequest = { viewModel.clearError() },
@@ -105,7 +110,7 @@ fun FavoritesView(
         }
     }
 }
-
+// (Next Feature)
 @Composable
 private fun EmptyFavoritesContent(
     onSearchClick: () -> Unit

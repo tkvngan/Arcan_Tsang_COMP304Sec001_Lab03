@@ -34,6 +34,19 @@ import net.skycast.ui.model.HomeViewModel
 import net.skycast.ui.model.SearchViewModel
 import net.skycast.ui.theme.SkyCastTheme
 
+// Fixed : Navigation Bar and other UI Components
+//Explanation : The MainActivity class is the entry point of the application.
+// The MainActivity class initializes the repository, weather API, and use cases.
+// The MainActivity class sets up the Compose UI using the setContent function.
+// The MainActivity class defines the navigation routes for the home, favorites, history, and search screens.
+// The MainActivity class uses the NavHost composable function to navigate between screens.
+// The MainActivity class uses the NavigationBar composable function to display the bottom navigation bar on phone layouts.
+// The MainActivity class uses the NavigationRail composable function to display the navigation rail on tablet/foldable layouts.
+// The MainActivity class uses the HomeView, FavoritesView, HistoryView, and SearchView composable functions to display the content of each screen.
+// The MainActivity class initializes the ViewModels with the proper dependencies and collects the state of the ViewModels using the collectAsState function.
+
+
+
 class MainActivity : ComponentActivity() {
     private val repository by lazy { AppRepository(context = this) }
     private val weatherApi by lazy { WeatherbitApi(key = "5ffd1f30c7974380947e096b644f842b") }
@@ -136,7 +149,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     else -> {
-                        // Tablet/Foldable layout with navigation rail
+                        // Tablet/Foldable layout with navigation rail (Note: Search screen is not shown in this layout)
                         Row(modifier = Modifier.fillMaxSize()) {
                             if (currentRoute != "search") {
                                 NavigationRail(

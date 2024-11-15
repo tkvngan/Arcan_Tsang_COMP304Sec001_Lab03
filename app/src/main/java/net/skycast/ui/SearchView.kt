@@ -15,6 +15,15 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import net.skycast.domain.Location
 import net.skycast.ui.model.SearchViewModel
+// Fixed : Viewing Weather Details from Search
+//Explanation : The SearchView composable function displays a search bar where the user can enter the name of a city to search for.
+// The search results are displayed in a LazyColumn with each city displayed in a CityListItem composable function.
+// The CityListItem composable function displays the city's name, state, and country.
+// The user can click on a city to view its weather details or click on the favorite icon to add or remove it from their favorites.
+// The search results are based on the user's input, and the user can clear the search query by clicking on the clear icon.
+// The SearchView composable function takes a SearchViewModel and NavController as parameters.
+// The SearchViewModel is used to search for cities and manage the search results, and the NavController is used to navigate back to the home screen.
+// The state of the SearchViewModel is collected using the collectAsState function, and the search results are displayed based on the state.
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

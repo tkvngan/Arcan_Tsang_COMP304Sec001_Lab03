@@ -32,7 +32,7 @@ class HomeViewModel(
             _stateFlow.value.copy(error = e, isBusy = false)
         }
     }
-
+//HomePage Views Display Torronto Weather Data
     suspend fun initialize() {
         updateState {
             copy(isBusy = true)
@@ -107,7 +107,7 @@ class HomeViewModel(
         }
     }
 
-    // Add this method to update weather data when selecting from favorites
+    // method to update weather data when selecting from favorites
     suspend fun updateWeatherData(weatherData: WeatherData) {
         updateState {
             copy(isBusy = true)
@@ -123,7 +123,7 @@ class HomeViewModel(
         }
     }
 
-    // Optional: Add method to refresh favorites list
+    // Optional: Add method to refresh favorites list (Important Feature)
     suspend fun refreshFavorites() {
         updateState {
             copy(
@@ -133,7 +133,7 @@ class HomeViewModel(
         }
     }
 
-    // Optional: Add method to add location to favorites
+    // Optional: Add method to add location to favorites (Required)
     suspend fun addToFavorites(location: Location) {
         updateState {
             val id = useCases.SaveFavoriteLocation(location)
@@ -144,7 +144,7 @@ class HomeViewModel(
         }
     }
 
-    // Optional: Add method to remove from favorites
+    // Optional: Add method to remove from favorites (Not Needed
     suspend fun removeFromFavorites(id: Long) {
         updateState {
             useCases.RemoveFavoriteLocation(id)
